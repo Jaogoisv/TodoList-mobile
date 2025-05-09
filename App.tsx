@@ -7,15 +7,15 @@ import Login from "./src/app/login";
 import Recuperarsenha from "./src/app/recuperar senha";
 import Recuperarsenhaetapa2 from "./src/app/recuperar senha/etapa2";
 import Recuperarsenhaetapa3 from "./src/app/recuperar senha/etapa3";
-import Criarativiade from "./src/app/criar atividade";
 import Criarpasta from "./src/app/criar pasta";
 import Mudarnome from "./src/app/mudar nome";
 import Perfil from "./src/app/perfil";
+import Criaratividade from "./src/app/criar atividade";
 
 export default function App() {
   return (
     <View style={{ flex: 1 }}>
-      <Home />
+      <Criaratividade />
     </View>
   );
 }

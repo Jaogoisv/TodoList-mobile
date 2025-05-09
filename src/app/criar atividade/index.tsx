@@ -143,6 +143,7 @@ export default function Criarativiade() {
             placeholder="Digite aqui..."
             multiline={true}
             numberOfLines={15}
+            scrollEnabled={true}
           ></TextInput>
         </View>
         <View
