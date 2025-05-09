@@ -1,16 +1,20 @@
 import { StatusBar } from "expo-status-bar";
+import api from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
   ImageBackground,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
 import { useCustomFonts } from "../../..//styles";
 import Constants from "expo-constants";
+import React, { useState } from "react";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -18,10 +22,31 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function Login() {
+export default function Login({ navigation }: any) {
   const fontsLoaded = useCustomFonts();
 
-  if (!fontsLoaded) return null; // Espera a fonte carregar antes de renderizar
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  if (!fontsLoaded) return null;
+
+  const handleLogin = async () => {
+    try {
+      const response = await api.post('/session', {
+        email,
+        password,
+      });
+  
+  
+      await AsyncStorage.setItem('token', response.data.token.token);
+  
+      Alert.alert('Login bem-sucedido!');
+      navigation.navigate('Home');
+    } catch (error: any) {
+      console.error('Erro ao fazer login:', error);
+      Alert.alert('Erro ao fazer login');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -34,7 +59,7 @@ export default function Login() {
             width: "100%",
             height: "100%",
             left: 0,
-            zIndex: -1, // Mantém a imagem no fundo
+            zIndex: -1,
           }}
           resizeMode="cover"
         />
@@ -81,9 +106,14 @@ export default function Login() {
               marginTop: 5,
               marginBottom: 5,
               backgroundColor: "#D9D9D9",
+              padding: 8,
             }}
             placeholder="Digite aqui..."
-          ></TextInput>
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
             Senha:
           </Text>
@@ -95,10 +125,13 @@ export default function Login() {
               marginTop: 5,
               marginBottom: 5,
               backgroundColor: "#D9D9D9",
+              padding: 8,
             }}
             placeholder="Digite aqui..."
             secureTextEntry={true}
-          ></TextInput>
+            value={password}
+            onChangeText={setPassword}
+          />
           <View
             style={{
               justifyContent: "center",
@@ -130,6 +163,7 @@ export default function Login() {
             </TouchableOpacity>
           </View>
           <TouchableOpacity
+            onPress={handleLogin}
             style={{
               borderWidth: 3,
               backgroundColor: "#6355FF",
@@ -137,11 +171,10 @@ export default function Login() {
               alignItems: "center",
               marginTop: 20,
               marginBottom: 10,
-              paddingVertical: 5,
-              paddingTop: 8,
+              paddingVertical: 8,
             }}
           >
-            <Text style={{ fontFamily: "fontpixel", fontSize: 30 }}>
+            <Text style={{ fontFamily: "fontpixel", fontSize: 30, color: "white" }}>
               Entrar
             </Text>
           </TouchableOpacity>

@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { useCustomFonts } from "../../..//styles";
 import Constants from "expo-constants";
+import React from "react";
+import api from "../../services/api";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -23,7 +25,7 @@ const styles = StyleSheet.create({
 export default function Home() {
   const fontsLoaded = useCustomFonts();
 
-  if (!fontsLoaded) return null; // Espera a fonte carregar antes de renderizar
+  if (!fontsLoaded) return null; 
 
   return (
     <SafeAreaView style={styles.safeArea}>
