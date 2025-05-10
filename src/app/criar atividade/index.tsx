@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useCustomFonts } from "../../..//styles";
 import Constants from "expo-constants";
+import React from "react";
 
 const styles = StyleSheet.create({
   safeArea: {

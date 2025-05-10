@@ -5,13 +5,17 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   View,
   Image,
+  Alert,
 } from "react-native";
-import { useCustomFonts } from "../../..//styles";
+import { useCustomFonts } from "../../../styles";
 import Constants from "expo-constants";
+import React, { useState } from "react";
+import api from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -19,10 +23,43 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function Criarpasta() {
+export default function CriarPasta() {
   const fontsLoaded = useCustomFonts();
+  const [folderName, setFolderName] = useState("");
 
-  if (!fontsLoaded) return null; // Espera a fonte carregar antes de renderizar
+  const navigation = useNavigation();
+
+  if (!fontsLoaded) return null;
+
+  const handleCreateFolder = async () => {
+    if (!folderName.trim()) {
+      Alert.alert("Erro", "Digite um nome para a pasta");
+      return;
+    }
+
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+
+      const response = await api.post(
+        "/folder",
+        { name: folderName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Alert.alert("Sucesso", "Pasta criada com sucesso!");
+      navigation.goBack(); 
+    } catch (error) {
+      console.error("Erro ao criar pasta:", error);
+      Alert.alert("Erro", "Não foi possível criar a pasta");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -75,19 +112,22 @@ export default function Criarpasta() {
           }}
         >
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
-            Titulo pasta:
+            Título pasta:
           </Text>
           <TextInput
             style={{
               fontSize: 25,
               fontFamily: "fontpixel",
               borderWidth: 3,
-              marginTop: 5,
+              marginTop: 7,
               marginBottom: 5,
               backgroundColor: "#D9D9D9",
+              padding: 8, 
             }}
             placeholder="Digite aqui..."
-          ></TextInput>
+            value={folderName}
+            onChangeText={setFolderName}
+          />
         </View>
         <View
           style={{
@@ -105,6 +145,7 @@ export default function Criarpasta() {
               padding: 9,
               alignItems: "center",
             }}
+            onPress={handleCreateFolder}
           >
             <Image
               resizeMode="cover"
@@ -120,6 +161,7 @@ export default function Criarpasta() {
               padding: 9,
               alignItems: "center",
             }}
+            onPress={() => navigation.goBack()}
           >
             <Image
               resizeMode="cover"

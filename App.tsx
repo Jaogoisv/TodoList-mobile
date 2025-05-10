@@ -13,6 +13,7 @@ import Recuperarsenhaetapa3 from "./src/app/recuperar senha/etapa3";
 import Mudarnome from "./src/app/mudar nome";
 import Perfil from "./src/app/perfil";
 import Criaratividade from "./src/app/criar atividade";
+import Criarpasta from "./src/app/criar pasta";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +34,7 @@ export default function App() {
 
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Atividades" component={Atividades} />
+        <Stack.Screen name="CriarPasta" component={Criarpasta} />
         <Stack.Screen name="Atividade" component={Atividade} />
         <Stack.Screen name="Perfil" component={Perfil} />
         <Stack.Screen name="MudarNome" component={Mudarnome} />
