@@ -146,6 +146,7 @@ export default function Login({ navigation }: any) {
                   fontFamily: "fontpixel",
                   color: "#0051FF",
                 }}
+                onPress={() => navigation.navigate('Cadastro')}
               >
                 Criar conta
               </Text>
@@ -157,6 +158,7 @@ export default function Login({ navigation }: any) {
                   fontFamily: "fontpixel",
                   color: "#0051FF",
                 }}
+                onPress={() => navigation.navigate('RecuperarSenha')}
               >
                 Esqueci a senha
               </Text>

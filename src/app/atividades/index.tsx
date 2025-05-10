@@ -4,80 +4,159 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
-  Touchable,
   TouchableOpacity,
   View,
   Image,
   ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
-import { useCustomFonts } from "../../..//styles";
+import { useCustomFonts } from "../../../styles";
 import Constants from "expo-constants";
+import React, { useState, useEffect, useCallback } from "react";
+import api from "../../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRoute, useFocusEffect } from "@react-navigation/native";
+import { AxiosError } from "axios";
+
+interface Activity {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface RouteParams {
+  folderId: string;
+}
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  backgroundImage: {
+    position: "absolute",
+    top: Constants.statusBarHeight,
+    width: "100%",
+    height: "100%",
+    left: 0,
+    zIndex: -1,
+  },
+  header: {
+    flexDirection: "row",
+    marginTop: 90,
+    marginBottom: 20,
+    alignContent: "center",
+    justifyContent: "space-between",
+    marginHorizontal: 15,
+  },
+  activityContainer: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    borderWidth: 3,
+    marginHorizontal: 15,
+    marginVertical: 6,
+    padding: 9,
+  },
+  activityText: {
+    marginTop: 5,
+    fontSize: 30,
+    fontFamily: "fontpixel",
+  },
+  descriptionText: {
+    marginTop: 5,
+    fontSize: 30,
+    fontFamily: "fontpixel",
+    color: "rgba(0,0,0,0.6)",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontFamily: "fontpixel",
+    fontSize: 30,
+    color: "white",
+    marginTop: 20,
+  },
 });
 
-export default function Atividades() {
+export default function Atividade({ navigation }: any) {
   const fontsLoaded = useCustomFonts();
+  const route = useRoute();
+  const { folderId } = route.params as RouteParams;
+  
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  if (!fontsLoaded) return null; // Espera a fonte carregar antes de renderizar
+  if (!fontsLoaded) return null;
+
+  const fetchActivities = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        navigation.navigate('Login');
+        return;
+      }
+
+      const response = await api.get(`/task`, {
+        params: { folderId: folderId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setActivities(response.data);
+    } catch (error) {
+      const err = error as AxiosError;
+      console.error('Erro ao buscar atividades:', err.response?.data || err.message);
+      Alert.alert('Erro', 'Não foi possível carregar as atividades');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchActivities();
+    }, [folderId])
+  );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchActivities();
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  if (loading && !refreshing) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+          <Text style={styles.loadingText}>Carregando atividades...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={{ flex: 1, alignContent: "center" }}>
         <ImageBackground
           source={require("../../../assets/background/fundo2.png")}
-          style={{
-            position: "absolute",
-            top: Constants.statusBarHeight,
-            width: "100%",
-            height: "100%",
-            left: 0,
-            zIndex: -1,
-          }}
+          style={styles.backgroundImage}
           resizeMode="cover"
         />
-        <View
-          style={{
-            flexDirection: "row",
-            marginTop: 90,
-            marginBottom: 20,
-            alignContent: "center",
-            justifyContent: "space-between",
-            marginHorizontal: 15,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              backgroundColor: "white",
-              borderWidth: 3,
-              padding: 9,
-              alignItems: "center",
-              borderColor: "rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/folder.png")}
-              style={{ width: 30, height: 30, opacity: 0.5 }}
-            />
-            <Text
-              style={{
-                fontFamily: "fontpixel",
-                fontSize: 30,
-                marginLeft: 10,
-                marginTop: 7,
-                opacity: 0.5,
-              }}
-            >
-              Pasta 1
-            </Text>
-          </View>
+        
+        <View style={styles.header}>
           <TouchableOpacity
+            onPress={() => navigation.goBack()}
             style={{
               flexDirection: "row",
               backgroundColor: "white",
@@ -87,12 +166,16 @@ export default function Atividades() {
             }}
           >
             <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/note-plus.png")}
+              source={require("../../../assets/icons/arrow-left.png")}
               style={{ width: 30, height: 30 }}
             />
           </TouchableOpacity>
+          
           <TouchableOpacity
+            onPress={() => navigation.navigate('CriarAtividade', { 
+              folder_id: folderId,
+              onTaskCreated: fetchActivities // Passa a função de atualização
+            })}
             style={{
               flexDirection: "row",
               backgroundColor: "white",
@@ -102,178 +185,56 @@ export default function Atividades() {
             }}
           >
             <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/folder.png")}
-              style={{ width: 30, height: 30 }}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              backgroundColor: "white",
-              borderWidth: 3,
-              padding: 9,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/more-horizontal.png")}
+              source={require("../../../assets/icons/folder-plus.png")}
               style={{ width: 30, height: 30 }}
             />
           </TouchableOpacity>
         </View>
-        <ScrollView style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              backgroundColor: "white",
-              borderWidth: 3,
-              marginHorizontal: 15,
-              marginVertical: 6,
-              padding: 9,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/file-alt.png")}
-              style={{ width: 30, height: 30 }}
+        
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#FFFFFF"]}
+              tintColor="#FFFFFF"
             />
-            <Text
-              style={{
-                fontFamily: "fontpixel",
-                fontSize: 30,
-                marginLeft: 10,
-                marginTop: 7,
-              }}
-            >
-              Atividade 1
-            </Text>
-            <View
-              style={{
-                justifyContent: "flex-end",
-                alignItems: "center",
-                flexDirection: "row",
-                flex: 1,
-              }}
-            >
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/check.png")}
-                  style={{ width: 30, height: 30 }}
-                />
+          }
+        >
+          {activities.map((activity) => (
+            <View key={activity.id}>
+              <TouchableOpacity
+                style={styles.activityContainer}
+                onPress={() => navigation.navigate('Atividade', { activityId: activity.id })}
+              >
+                <View>
+                  <Text style={styles.activityText}>
+                    Titulo{"\n"}
+                    Criado em :{"\n"}
+                    Editado em :
+                  </Text>
+                </View>
+                <View style={{ marginHorizontal: 10 }}>
+                  <Text style={styles.activityText}>
+                    :{"\n"}:{"\n"}:
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.activityText}>
+                    {activity.title}{"\n"}
+                    {formatDate(activity.createdAt)}{"\n"}
+                    {formatDate(activity.updatedAt)}
+                  </Text>
+                </View>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/close.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
+              
+              <View style={[styles.activityContainer, { flexDirection: 'column' }]}>
+                <Text style={styles.descriptionText} numberOfLines={3}>
+                  {activity.description}
+                </Text>
+              </View>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              backgroundColor: "white",
-              borderWidth: 3,
-              marginHorizontal: 15,
-              marginVertical: 6,
-              padding: 9,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/file-alt.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text
-              style={{
-                fontFamily: "fontpixel",
-                fontSize: 30,
-                marginLeft: 10,
-                marginTop: 7,
-              }}
-            >
-              Atividade 2
-            </Text>
-            <View
-              style={{
-                justifyContent: "flex-end",
-                alignItems: "center",
-                flexDirection: "row",
-                flex: 1,
-              }}
-            >
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/check.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/close.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              backgroundColor: "white",
-              borderWidth: 3,
-              marginHorizontal: 15,
-              marginVertical: 6,
-              padding: 9,
-              alignItems: "center",
-            }}
-          >
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/file-alt.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text
-              style={{
-                fontFamily: "fontpixel",
-                fontSize: 30,
-                marginLeft: 10,
-                marginTop: 7,
-              }}
-            >
-              Atividade 3
-            </Text>
-            <View
-              style={{
-                justifyContent: "flex-end",
-                alignItems: "center",
-                flexDirection: "row",
-                flex: 1,
-              }}
-            >
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/check.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={{ marginHorizontal: 5 }}>
-                <Image
-                  resizeMode="cover"
-                  source={require("../../../assets/icons/close.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
+          ))}
         </ScrollView>
       </View>
     </SafeAreaView>

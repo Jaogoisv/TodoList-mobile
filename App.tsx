@@ -14,6 +14,7 @@ import Mudarnome from "./src/app/mudar nome";
 import Perfil from "./src/app/perfil";
 import Criaratividade from "./src/app/criar atividade";
 import Criarpasta from "./src/app/criar pasta";
+import EditarPasta from './src/app/editar pasta';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +40,7 @@ export default function App() {
         <Stack.Screen name="Perfil" component={Perfil} />
         <Stack.Screen name="MudarNome" component={Mudarnome} />
         <Stack.Screen name="CriarAtividade" component={Criaratividade} />
+        <Stack.Screen name="EditarPasta" component={EditarPasta} />
       </Stack.Navigator>
     </NavigationContainer>
   );

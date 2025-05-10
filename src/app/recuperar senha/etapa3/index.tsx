@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useCustomFonts } from "../../../..//styles";
 import Constants from "expo-constants";
+import React from "react";
+import { useNavigation } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -20,8 +22,8 @@ const styles = StyleSheet.create({
 
 export default function Recuperarsenhaetapa3() {
   const fontsLoaded = useCustomFonts();
-
-  if (!fontsLoaded) return null; // Espera a fonte carregar antes de renderizar
+   const navigation = useNavigation<any>(); 
+  if (!fontsLoaded) return null; 
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -34,7 +36,7 @@ export default function Recuperarsenhaetapa3() {
             width: "100%",
             height: "100%",
             left: 0,
-            zIndex: -1, // Mantém a imagem no fundo
+            zIndex: -1, 
           }}
           resizeMode="cover"
         />
@@ -110,6 +112,7 @@ export default function Recuperarsenhaetapa3() {
               paddingVertical: 5,
               paddingTop: 8,
             }}
+            onPress={() => (navigation as any).navigate('Login')}
           >
             <Text style={{ fontFamily: "fontpixel", fontSize: 30 }}>
               Confirmar

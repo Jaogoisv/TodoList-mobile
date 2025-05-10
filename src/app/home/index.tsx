@@ -17,6 +17,8 @@ import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AxiosError } from "axios";
+import Dialog from "react-native-dialog";
+
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -122,38 +124,83 @@ export default function Home({ navigation }: any) {
   };
 
   const handleEditFolder = async (folderId: string, newName: string) => {
+    if (!folderId || !newName.trim()) {
+      Alert.alert('Erro', 'Dados inválidos para edição');
+      return false;
+    }    
+  
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
+      
       if (!token) {
+        Alert.alert('Sessão expirada', 'Por favor, faça login novamente');
         navigation.navigate('Login');
         return false;
       }
-
-      await api.put(
+  
+      const tokenIsValid = await validateToken(token); 
+      if (!tokenIsValid) {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('Login');
+        return false;
+      }
+  
+      const response = await api.put(
         `/folder/${folderId}`,
-        { name: newName },
+        { name: newName.trim() },
         {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
+          timeout: 10000, 
         }
       );
-
-      setFolders(prevFolders => 
-        prevFolders.map(folder => 
-          folder.id === folderId ? { ...folder, name: newName } : folder
-        )
-      );
+  
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || 'Edição falhou no servidor');
+      }
+  
+      setFolders(prevFolders => {
+        const folderExists = prevFolders.some(f => f.id === folderId);
+        if (!folderExists) {
+          console.warn('Pasta não encontrada para atualização');
+          return prevFolders;
+        }
+        return prevFolders.map(folder => 
+          folder.id === folderId ? { ...folder, name: newName.trim() } : folder
+        );
+      });
+  
       return true;
     } catch (error) {
       const err = error as AxiosError<ApiError>;
-      console.error('Erro ao editar pasta:', err.response?.data || err.message);
-      Alert.alert('Erro', err.response?.data?.message || 'Não foi possível editar a pasta');
+      const errorMessage = err.response?.data?.message || 
+                          err.message || 
+                          'Erro desconhecido ao editar pasta';
+      
+      console.error('Erro completo:', {
+        error: err.response?.data,
+        status: err.response?.status,
+        config: err.config
+      });
+  
+      Alert.alert('Erro', errorMessage);
       return false;
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const validateToken = async (token: string) => {
+    try {
+      const response = await api.get('/auth/validate', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data.valid;
+    } catch {
+      return false;
     }
   };
 
@@ -184,31 +231,7 @@ export default function Home({ navigation }: any) {
   };
 
   const promptEditFolder = (folder: Folder) => {
-    Alert.prompt(
-      'Editar Pasta',
-      'Digite o novo nome da pasta:',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Salvar',
-          onPress: async (newName: string | undefined) => {
-            if (newName && newName.trim()) {
-              const success = await handleEditFolder(folder.id, newName.trim());
-              if (success) {
-                Alert.alert('Sucesso', 'Pasta atualizada com sucesso!');
-              }
-            } else {
-              Alert.alert('Erro', 'O nome da pasta não pode estar vazio');
-            }
-          },
-        },
-      ],
-      'plain-text',
-      folder.name
-    );
+    navigation.navigate('EditarPasta', { folder });
   };
 
   const promptDeleteFolder = (folderId: string) => {
@@ -288,7 +311,7 @@ export default function Home({ navigation }: any) {
               <TouchableOpacity
                 key={folder.id}
                 style={styles.folderContainer}
-                onPress={() => navigation.navigate('CriarAtividade', { folderId: folder.id })}
+                onPress={() => navigation.navigate('Atividades', { folderId: folder.id })}
               >
                 <Image
                   source={require("../../../assets/icons/folder.png")}
