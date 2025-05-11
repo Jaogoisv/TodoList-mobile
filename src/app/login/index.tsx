@@ -43,7 +43,6 @@ export default function Login({ navigation }: any) {
       Alert.alert('Login bem-sucedido!');
       navigation.navigate('Home');
     } catch (error: any) {
-      console.error('Erro ao fazer login:', error);
       Alert.alert('Erro ao fazer login');
     }
   };

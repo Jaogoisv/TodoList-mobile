@@ -8,10 +8,14 @@ import {
   Touchable,
   TouchableOpacity,
   View,
+  Alert
 } from "react-native";
 import { useCustomFonts } from "../../..//styles";
 import Constants from "expo-constants";
-import React from "react";
+import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import api from "../../services/api";
+import { useNavigation } from "@react-navigation/native";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -19,8 +23,32 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function Cadastro() {
+export default function Cadastro({ navigation }: any) {
   const fontsLoaded = useCustomFonts();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleRegister = async() => {
+    try {
+      const response = await api.post('user', {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
+
+
+  
+      Alert.alert('Conta criada com sucesso! Faça login para continuar.');
+      navigation.navigate('Login');
+    } catch (error: any) {
+      console.error('Erro ao registrar conta:', error.response?.data || error.message);
+  Alert.alert('Erro ao criar conta');
+    }
+  }
 
   if (!fontsLoaded) return null; 
 
@@ -84,6 +112,8 @@ export default function Cadastro() {
               backgroundColor: "#D9D9D9",
             }}
             placeholder="Digite aqui..."
+            value={name}
+            onChangeText={setName}
           ></TextInput>
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
             Email:
@@ -98,6 +128,8 @@ export default function Cadastro() {
               backgroundColor: "#D9D9D9",
             }}
             placeholder="Digite aqui..."
+            value={email}
+            onChangeText={setEmail}
           ></TextInput>
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
             Senha:
@@ -112,6 +144,8 @@ export default function Cadastro() {
               backgroundColor: "#D9D9D9",
             }}
             placeholder="Digite aqui..."
+            value={password}
+            onChangeText={setPassword}
             secureTextEntry={true}
           ></TextInput>
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
@@ -127,6 +161,8 @@ export default function Cadastro() {
               backgroundColor: "#D9D9D9",
             }}
             placeholder="Digite aqui..."
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
             secureTextEntry={true}
           ></TextInput>
           <TouchableOpacity
@@ -140,8 +176,10 @@ export default function Cadastro() {
               paddingVertical: 5,
               paddingTop: 8,
             }}
+            onPress={handleRegister}
           >
             <Text style={{ fontFamily: "fontpixel", fontSize: 30 }}>
+              
               Cadastrar
             </Text>
           </TouchableOpacity>
