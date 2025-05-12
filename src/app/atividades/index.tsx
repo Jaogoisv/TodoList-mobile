@@ -88,7 +88,7 @@ export default function Atividade({ navigation }: any) {
   const fontsLoaded = useCustomFonts();
   const route = useRoute();
   const { folderId } = route.params as RouteParams;
-  
+
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -97,9 +97,9 @@ export default function Atividade({ navigation }: any) {
 
   const fetchActivities = async () => {
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       if (!token) {
-        navigation.navigate('Login');
+        navigation.navigate("Login");
         return;
       }
 
@@ -110,8 +110,11 @@ export default function Atividade({ navigation }: any) {
       setActivities(response.data);
     } catch (error) {
       const err = error as AxiosError;
-      console.error('Erro ao buscar atividades:', err.response?.data || err.message);
-      Alert.alert('Erro', 'Não foi possível carregar as atividades');
+      console.error(
+        "Erro ao buscar atividades:",
+        err.response?.data || err.message
+      );
+      Alert.alert("Erro", "Não foi possível carregar as atividades");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -131,7 +134,7 @@ export default function Atividade({ navigation }: any) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    return date.toLocaleDateString("pt-BR");
   };
 
   if (loading && !refreshing) {
@@ -153,7 +156,7 @@ export default function Atividade({ navigation }: any) {
           style={styles.backgroundImage}
           resizeMode="cover"
         />
-        
+
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -170,12 +173,14 @@ export default function Atividade({ navigation }: any) {
               style={{ width: 30, height: 30 }}
             />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
-            onPress={() => navigation.navigate('CriarAtividade', { 
-              folder_id: folderId,
-              onTaskCreated: fetchActivities // Passa a função de atualização
-            })}
+            onPress={() =>
+              navigation.navigate("CriarAtividade", {
+                folder_id: folderId,
+                onTaskCreated: fetchActivities, // Passa a função de atualização
+              })
+            }
             style={{
               flexDirection: "row",
               backgroundColor: "white",
@@ -185,12 +190,12 @@ export default function Atividade({ navigation }: any) {
             }}
           >
             <Image
-              source={require("../../../assets/icons/folder-plus.png")}
+              source={require("../../../assets/icons/note-plus.png")}
               style={{ width: 30, height: 30 }}
             />
           </TouchableOpacity>
         </View>
-        
+
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -204,35 +209,30 @@ export default function Atividade({ navigation }: any) {
           {activities.map((activity) => (
             <View key={activity.id}>
               <TouchableOpacity
-                style={styles.activityContainer}
-                onPress={() => navigation.navigate('Atividade', { activityId: activity.id })}
+                style={[styles.activityContainer]}
+                onPress={() =>
+                  navigation.navigate("Atividade", { activityId: activity.id })
+                }
               >
+                <Image
+                  source={require("../../../assets/icons/file-alt.png")}
+                  style={{ width: 30, height: 30, marginRight: 5 }}
+                />
                 <View>
                   <Text style={styles.activityText}>
-                    Titulo{"\n"}
-                    Criado em :{"\n"}
-                    Editado em :
-                  </Text>
-                </View>
-                <View style={{ marginHorizontal: 10 }}>
-                  <Text style={styles.activityText}>
-                    :{"\n"}:{"\n"}:
-                  </Text>
-                </View>
-                <View>
-                  <Text style={styles.activityText}>
-                    {activity.title}{"\n"}
-                    {formatDate(activity.createdAt)}{"\n"}
+                    {activity.title}
+                    {"\n"}
+                    {formatDate(activity.createdAt)}
+                    {"\n"}
                     {formatDate(activity.updatedAt)}
                   </Text>
                 </View>
+                <View style={{ marginLeft: 1 }}>
+                  <Text style={styles.activityText}>
+                    {"\n"} (Criado) {"\n"} (Atualizado)
+                  </Text>
+                </View>
               </TouchableOpacity>
-              
-              <View style={[styles.activityContainer, { flexDirection: 'column' }]}>
-                <Text style={styles.descriptionText} numberOfLines={3}>
-                  {activity.description}
-                </Text>
-              </View>
             </View>
           ))}
         </ScrollView>

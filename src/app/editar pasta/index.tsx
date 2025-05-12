@@ -19,7 +19,6 @@ import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import { useEffect } from "react";
 
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -48,11 +47,11 @@ export default function EditarPasta() {
       Alert.alert("Erro", "Digite um nome para a pasta");
       return;
     }
-  
+
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) return;
-  
+
       await api.put(
         `/folder/${folder.id}`,
         { name: folderName },
@@ -62,7 +61,7 @@ export default function EditarPasta() {
           },
         }
       );
-  
+
       Alert.alert("Sucesso", "Pasta atualizada com sucesso!");
       navigation.goBack();
     } catch (error) {
@@ -70,7 +69,6 @@ export default function EditarPasta() {
       Alert.alert("Erro", "Não foi possível atualizar a pasta");
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -123,7 +121,7 @@ export default function EditarPasta() {
           }}
         >
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
-            Título pasta:
+            Titulo pasta:
           </Text>
           <TextInput
             style={{
@@ -133,7 +131,7 @@ export default function EditarPasta() {
               marginTop: 7,
               marginBottom: 5,
               backgroundColor: "#D9D9D9",
-              padding: 8, 
+              padding: 8,
             }}
             placeholder="Digite aqui..."
             value={folderName}

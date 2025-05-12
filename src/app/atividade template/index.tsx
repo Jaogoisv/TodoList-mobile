@@ -15,7 +15,7 @@ import { useCustomFonts } from "../../../styles";
 import Constants from "expo-constants";
 import React, { useEffect, useState } from "react";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import api from "../../services/api";
 
 type RootStackParamList = {
@@ -114,7 +114,8 @@ const styles = StyleSheet.create({
 export default function Atividade() {
   const fontsLoaded = useCustomFonts();
   const route = useRoute();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { activityId } = route.params as { activityId: string };
 
   const [activity, setActivity] = useState<Activity | null>(null);
@@ -156,7 +157,7 @@ export default function Atividade() {
   };
 
   const handleEdit = () => {
-    navigation.navigate('EditarAtividade', { activityId });
+    navigation.navigate("EditarAtividade", { activityId });
   };
 
   if (!fontsLoaded || loading) {
@@ -188,24 +189,13 @@ export default function Atividade() {
               Pasta {activity?.folder_id ?? "?"}
             </Text>
           </View>
-          <TouchableOpacity style={styles.button}>
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/more-horizontal.png")}
-              style={{ width: 30, height: 30 }}
-            />
-          </TouchableOpacity>
         </View>
 
         {/* Conteúdo */}
         <ScrollView style={{ flex: 1 }}>
           <View style={styles.contentContainer}>
-            <Text style={styles.contentText}>
-              Titulo{"\n"}Status
-            </Text>
-            <Text style={styles.contentText}>
-              : {"\n"}:
-            </Text>
+            <Text style={styles.contentText}>Titulo{"\n"}Status</Text>
+            <Text style={styles.contentText}>: {"\n"}:</Text>
             <Text style={styles.contentText}>
               {activity?.title || "N/A"}
               {"\n"}
@@ -222,7 +212,7 @@ export default function Atividade() {
 
         {/* Rodapé com botões */}
         <View style={styles.footer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.goBack()}
           >
@@ -232,7 +222,7 @@ export default function Atividade() {
               style={{ width: 30, height: 30 }}
             />
           </TouchableOpacity>
-          
+
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity
               style={[styles.button, { marginRight: 7 }]}
@@ -244,7 +234,7 @@ export default function Atividade() {
                 style={{ width: 30, height: 30 }}
               />
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={[styles.button, { marginLeft: 7 }]}
               onPress={handleToggleComplete}

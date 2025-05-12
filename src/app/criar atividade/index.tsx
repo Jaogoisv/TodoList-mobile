@@ -9,7 +9,7 @@ import {
   View,
   Image,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { useCustomFonts } from "../../../styles";
 import Constants from "expo-constants";
@@ -115,7 +115,7 @@ export default function CriarAtividade() {
 
   if (!fontsLoaded) return null;
 
-  if (typeof folder_id !== 'number') {
+  if (typeof folder_id !== "number") {
     Alert.alert("Erro", "Pasta não identificada corretamente");
     navigation.goBack();
     return null;
@@ -138,7 +138,7 @@ export default function CriarAtividade() {
       const payload = {
         title: titulo,
         description: descricao,
-        folder_id
+        folder_id,
       };
 
       console.log("Enviando para API:", payload);
@@ -154,17 +154,17 @@ export default function CriarAtividade() {
           text: "OK",
           onPress: () => {
             navigation.goBack();
-          }
-        }
+          },
+        },
       ]);
       navigation.goBack();
     } catch (error: any) {
       console.error("Erro ao criar tarefa:", {
         message: error.message,
         response: error.response?.data,
-        stack: error.stack
+        stack: error.stack,
       });
-      
+
       const errorMessage = error.response?.data?.message || "Erro desconhecido";
       Alert.alert("Erro", `Falha ao criar tarefa: ${errorMessage}`);
     } finally {
@@ -180,7 +180,7 @@ export default function CriarAtividade() {
           style={styles.backgroundImage}
           resizeMode="cover"
         />
-        
+
         <View style={styles.header}>
           <View style={styles.folderContainer}>
             <Image
@@ -188,24 +188,14 @@ export default function CriarAtividade() {
               source={require("../../../assets/icons/folder.png")}
               style={{ width: 30, height: 30, opacity: 0.5 }}
             />
-            <Text style={styles.folderText}>
-              Pasta {folder_id}
-            </Text>
+            <Text style={styles.folderText}>Pasta {folder_id}</Text>
           </View>
-          
-          <TouchableOpacity style={styles.button}>
-            <Image
-              resizeMode="cover"
-              source={require("../../../assets/icons/more-horizontal.png")}
-              style={{ width: 30, height: 30 }}
-            />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.inputTitle}>Titulo:</Text>
           <TextInput
-            style={[styles.textInput, { height: 40 }]}
+            style={[styles.textInput, { height: 44, paddingTop: 8 }]}
             placeholder="Digite aqui..."
             value={titulo}
             onChangeText={setTitulo}
@@ -243,7 +233,7 @@ export default function CriarAtividade() {
               />
             )}
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.goBack()}

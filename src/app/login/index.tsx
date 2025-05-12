@@ -32,18 +32,17 @@ export default function Login({ navigation }: any) {
 
   const handleLogin = async () => {
     try {
-      const response = await api.post('/session', {
+      const response = await api.post("/session", {
         email,
         password,
       });
-  
-  
-      await AsyncStorage.setItem('token', response.data.token.token);
-  
-      Alert.alert('Login bem-sucedido!');
-      navigation.navigate('Home');
+
+      await AsyncStorage.setItem("token", response.data.token.token);
+
+      Alert.alert("Login bem-sucedido!");
+      navigation.navigate("Home");
     } catch (error: any) {
-      Alert.alert('Erro ao fazer login');
+      Alert.alert("Erro ao fazer login");
     }
   };
 
@@ -138,28 +137,16 @@ export default function Login({ navigation }: any) {
               marginVertical: 14,
             }}
           >
-            <TouchableOpacity style={{ marginRight: 40 }}>
+            <TouchableOpacity>
               <Text
                 style={{
                   fontSize: 25,
                   fontFamily: "fontpixel",
                   color: "#0051FF",
                 }}
-                onPress={() => navigation.navigate('Cadastro')}
+                onPress={() => navigation.navigate("Cadastro")}
               >
                 Criar conta
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 40 }}>
-              <Text
-                style={{
-                  fontSize: 25,
-                  fontFamily: "fontpixel",
-                  color: "#0051FF",
-                }}
-                onPress={() => navigation.navigate('RecuperarSenha')}
-              >
-                Esqueci a senha
               </Text>
             </TouchableOpacity>
           </View>
@@ -175,7 +162,9 @@ export default function Login({ navigation }: any) {
               paddingVertical: 8,
             }}
           >
-            <Text style={{ fontFamily: "fontpixel", fontSize: 30, color: "white" }}>
+            <Text
+              style={{ fontFamily: "fontpixel", fontSize: 30, color: "white" }}
+            >
               Entrar
             </Text>
           </TouchableOpacity>

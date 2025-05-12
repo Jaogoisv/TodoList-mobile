@@ -54,7 +54,7 @@ export default function CriarPasta() {
       );
 
       Alert.alert("Sucesso", "Pasta criada com sucesso!");
-      navigation.goBack(); 
+      navigation.goBack();
     } catch (error) {
       console.error("Erro ao criar pasta:", error);
       Alert.alert("Erro", "Não foi possível criar a pasta");
@@ -86,13 +86,14 @@ export default function CriarPasta() {
             marginHorizontal: 15,
           }}
         >
-          <TouchableOpacity
+          <View
             style={{
               flexDirection: "row",
               backgroundColor: "white",
               borderWidth: 3,
               padding: 9,
               alignItems: "center",
+              opacity: 0,
             }}
           >
             <Image
@@ -100,7 +101,7 @@ export default function CriarPasta() {
               source={require("../../../assets/icons/more-horizontal.png")}
               style={{ width: 30, height: 30 }}
             />
-          </TouchableOpacity>
+          </View>
         </View>
         <View
           style={{
@@ -112,7 +113,7 @@ export default function CriarPasta() {
           }}
         >
           <Text style={{ marginTop: 5, fontSize: 30, fontFamily: "fontpixel" }}>
-            Título pasta:
+            Titulo pasta:
           </Text>
           <TextInput
             style={{
@@ -122,7 +123,7 @@ export default function CriarPasta() {
               marginTop: 7,
               marginBottom: 5,
               backgroundColor: "#D9D9D9",
-              padding: 8, 
+              padding: 8,
             }}
             placeholder="Digite aqui..."
             value={folderName}
