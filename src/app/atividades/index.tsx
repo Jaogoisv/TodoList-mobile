@@ -227,7 +227,12 @@ export default function Atividade({ navigation }: any) {
                     {formatDate(activity.updatedAt)}
                   </Text>
                 </View>
-                <View style={{ marginLeft: 1 }}>
+                <View>
+                  <Text style={styles.activityText}>
+                    {"\n"} {"  "} {"\n"} {"  "}
+                  </Text>
+                </View>
+                <View>
                   <Text style={styles.activityText}>
                     {"\n"} (Criado) {"\n"} (Atualizado)
                   </Text>
